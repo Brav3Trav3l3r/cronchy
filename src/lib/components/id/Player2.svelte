@@ -3,12 +3,18 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { currentEp, currentProvider, continueWatching } from '$lib/stores/playerStore.js';
 
-	let proxy = 'https://m3u8proxy.yashgajbhiye10.workers.dev/?url=';
+	// let proxy = 'https://m3u8proxy.yashgajbhiye10.workers.dev/?url=';
+	// let proxy = 'https://m3u8-proxy-cors-eta.vercel.app/cors?url=';
+	let proxy = 'https://proxy.vnxservers.com/proxy/m3u8/';
 
 	export let malId;
 	let duration;
 	let openingTime;
 	let endingTime;
+	let captionArray;
+
+	$: console.log(openingTime);
+	$: console.log(endingTime);
 
 	const getSkipTime = async () => {
 		console.log('hi');
@@ -17,11 +23,11 @@
 		);
 		const resJson = await res.json();
 		const array = resJson.results.map(({ skipType, interval }) => ({ skipType, interval }));
-		openingTime = array.find((e) => e.skipType === 'op');
-		endingTime = array.find((e) => e.skipType === 'ed');
+		const openingTimeObj = array.find((e) => e.skipType === 'op');
+		const endingTimeObj = array.find((e) => e.skipType === 'ed');
 
-		console.log('openingTime', openingTime?.interval?.startTime);
-		console.log('endTime', endingTime);
+		openingTime = openingTimeObj?.interval?.startTime;
+		endingTime = openingTimeObj?.interval?.endTime;
 	};
 
 	function playM3u8(video, url, art) {
@@ -41,18 +47,14 @@
 
 	let art;
 	let url = null;
-	let i = 0;
-	$: console.log(i);
 
 	let ready = false;
 
 	$: if ($currentEp) {
-		console.log('ran');
 		streamEpisode($currentEp.id);
 	}
 
 	const getDefaultSource = (sources) => {
-		i = i + 1;
 		console.log('sources:', sources);
 		const defaultSource = sources.find(
 			(source) => source.quality === 'auto' || source.quality === 'default'
@@ -66,11 +68,33 @@
 		);
 		const streamingSrc = await response.json();
 		url = await getDefaultSource(streamingSrc.sources);
-		if ($currentProvider.value === 'zoro') {
-			art.url = url;
-		} else {
-			art.url = `${proxy}${encodeURIComponent(url)}`;
+		art.url = `${proxy}${encodeURIComponent(url)}`;
+
+		// if ($currentProvider.value === 'zoro') {
+		// 	const subArray = streamingSrc?.subtitles;
+		// 	captionArray = subArray.map((obj) => createNewObjectWithChangedKeys(obj, keyMap));
+		// }
+	};
+
+	const keyMap = {
+		lang: 'html',
+		url: 'url'
+	};
+
+	const createNewObjectWithChangedKeys = (obj, keyMap) => {
+		const newObj = {};
+		for (const key in obj) {
+			if (keyMap.hasOwnProperty(key)) {
+				if (key === 'lang') {
+					newObj[keyMap[key]] = `<span style="">${obj[key]}</span>`;
+				} else {
+					newObj[keyMap[key]] = obj[key];
+				}
+			} else {
+				newObj[key] = obj[key];
+			}
 		}
+		return newObj;
 	};
 
 	onMount(() => {
@@ -83,6 +107,15 @@
 				m3u8: playM3u8
 			},
 			setting: true,
+			subtitle: {
+				type: 'srt',
+				encoding: 'utf-8',
+				escape: false,
+				style: {
+					color: '#fff',
+					'font-size': '1.5rem'
+				}
+			},
 			plugins: [
 				artplayerPluginHlsQuality({
 					// Show quality in setting
@@ -96,62 +129,56 @@
 					auto: 'Auto'
 				})
 			],
-			// icons: {
-			// 	loading: '<img src="/assets/img/ploading.gif">',
-			// 	state: '<img width="150" heigth="150" src="/assets/img/state.svg">',
-			// 	indicator: '<img width="16" heigth="16" src="/assets/img/indicator.svg">'
-			// },
-			// layers: [
-			// 	{
-			// 		name: 'button',
-			// 		html: '<button type="button">Click me !!</button>',
-			// 		style: {
-			// 			display: 'none',
-			// 			position: 'absolute',
-			// 			right: '20px',
-			// 			top: '20px',
-			// 			backgroundColor: 'red',
-			// 			padding: '2px'
-			// 		},
-			// 		click() {
-			// 			art.seek = openingTime?.interval?.endTime;
-			// 		},
-			// 		mounted(button) {
-			// 			this.on('video:timeupdate', () => {
-			// 				if (this.currentTime > 5 && this.currentTime < 10) {
-			// 					button.style.display = 'block';
-			// 				} else {
-			// 					button.style.display = 'none';
-			// 				}
-			// 			});
-			// 		}
-			// 	}
-			// ]
+			layers: [
+				{
+					name: 'button',
+					html: '<button type="button">Click me !!</button>',
+					style: {
+						display: 'none',
+						position: 'absolute',
+						right: '20px',
+						top: '20px',
+						backgroundColor: 'red',
+						padding: '2px'
+					},
+					click() {
+						art.seek = 10;
+					},
+					mounted(button) {
+						this.on('video:timeupdate', () => {
+							if (this.currentTime > 5 && this.currentTime < 10) {
+								button.style.display = 'block';
+							} else {
+								button.style.display = 'none';
+							}
+						});
+					}
+				}
+			]
 		});
 
-		art.on('ready', () => (ready = true));
 		art.on('video:loadeddata', async (e) => {
-			duration = await e?.target?.duration;
-			if ($currentEp?.number != '1') {
-				await getSkipTime();
-			}
-			art.layers.add({
+			duration = await e.target.duration;
+
+			await getSkipTime();
+
+			art.layers.update({
 				name: 'button',
-				html: '<button type="button">Click me !!</button>',
+				html: '<button type="button" class="skip-button"><span>Click me !!</span></button>',
 				style: {
-					display: 'none',
-					position: 'absolute',
-					right: '20px',
-					top: '20px',
-					backgroundColor: 'red',
-					padding: '2px'
-				},
+						display: 'none',
+						position: 'absolute',
+						right: '20px',
+						top: '20px',
+						backgroundColor: 'red',
+						padding: '2px'
+					},
 				click() {
-					art.seek = openingTime?.interval?.endTime;
+					art.seek = endingTime;
 				},
 				mounted(button) {
 					this.on('video:timeupdate', () => {
-						if (this.currentTime > openingTime?.interval?.startTime && this.currentTime < 10) {
+						if (this.currentTime > openingTime && this.currentTime < endingTime) {
 							button.style.display = 'block';
 						} else {
 							button.style.display = 'none';
@@ -159,19 +186,85 @@
 					});
 				}
 			});
+			// art.controls.add(
+			// 	{
+			// 		html: 'Subtitle',
+			// 		name: 'subtitle',
+			// 		position: 'right',
+			// 		selector: captionArray,
+			// 		onSelect: async function (item, $dom, event) {
+			// 			art.subtitle.url = item.url;
+			// 			// return item.html;
+			// 		}
+			// 	}
+			// )
 		});
 	});
 
-	// onDestroy (()=>[
-	// 	art.destroy()
-	// ])
+	onDestroy(() => {
+		art.destroy();
+	});
 </script>
 
-<!-- <svelte:head>
-	<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-	<script
-		src="https://cdn.jsdelivr.net/npm/artplayer-plugin-hls-quality/dist/artplayer-plugin-hls-quality.js"
-	></script>
-</svelte:head> -->
+<div bind:this={art} class="artplayer-app w-full h-full object-contain" />
 
-<div class="artplayer-app w-full h-full object-contain" />
+<style>
+	/* .art-player-button {
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	.skip-button {
+		display: block;
+		position: absolute;
+		right: 20px;
+		top: 20px;
+		width: 200px;
+		height: 40px;
+		line-height: 40px;
+		font-size: 18px;
+		font-family: sans-serif;
+		text-decoration: none;
+		color: #333;
+		border: 2px solid #333;
+		letter-spacing: 2px;
+		text-align: center;
+		position: relative;
+		transition: all 0.35s;
+	}
+
+	.skip-button span {
+		position: relative;
+		z-index: 2;
+	}
+
+	.skip-button:after {
+		position: absolute;
+		content: '';
+		top: 0;
+		left: 0;
+		width: 0;
+		height: 100%;
+		background: #ff003b;
+		transition: all 0.35s;
+	}
+
+	.skip-button:hover {
+		color: #fff;
+	}
+
+	.skip-button:hover:after {
+		width: 100%;
+	} */
+
+	/* .artplayer-app button{
+		display: none;
+		position: absolute;
+		bottom: 80px;
+		left: 20px;
+	} */
+
+
+</style>
