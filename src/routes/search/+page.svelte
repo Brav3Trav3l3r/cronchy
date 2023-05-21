@@ -44,7 +44,7 @@
 	const getData = async () => {
 		const newUrl = await createUrl();
 		console.log(newUrl);
-		const res = await fetch(`https://api.consumet.org/meta/anilist/advanced-search` + newUrl);
+		const res = await fetch(`https://proxy-for-movie-app.yashgajbhiye10.workers.dev/https://api-consumet-rust.vercel.app/meta/anilist/advanced-search` + newUrl);
 		const data = await res.json();
 		results = data.results;
 	};
@@ -123,7 +123,7 @@
 	$: genresList = [];
 </script>
 
-<div class="px-4 md:px-6 lg:px-16 mt-28 gap-6 space-y-16">
+<div class="px-4 md:px-6 lg:px-16 mt-28 gap-6 space-y-16 ">
 	<div class="flex flex-col xl:flex-row gap-x-4 gap-y-8">
 		<div class="flex gap-4">
 			<div class="search min-w-48 flex flex-col flex-1 gap-2">

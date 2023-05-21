@@ -64,7 +64,7 @@
 
 		<div
 			transition:fly={{ y: 20, duration: 100, easing: quintOut }}
-			class="absolute top-14 rounded-md inset-x-0 max-h-96 bg-neutral overflow-y-scroll scrollbar-hide p-2 z-50"
+			class="absolute top-14 rounded-md inset-x-0 max-h-96 bg-neutral overflow-y-scroll scrollbar-hide p-2 z-40"
 		>
 			{#each options as item}
 				<div

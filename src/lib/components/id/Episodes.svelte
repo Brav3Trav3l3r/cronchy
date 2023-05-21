@@ -22,12 +22,19 @@
 
 	import { slide } from 'svelte/transition';
 
-	import { currentEp, currentProvider, storeViewType } from '$lib/stores/playerStore.js';
-	import { onMount } from 'svelte';
+	import {
+		currentEp,
+		currentEpNumber,
+		currentProvider,
+		storeViewType
+	} from '$lib/stores/playerStore.js';
+	import { onDestroy, onMount } from 'svelte';
 
 	$: selected = $currentProvider.id;
 
 	let loading = false;
+
+	$:console.log($currentEpNumber)
 
 	$: sources = [animephaeAnime, anime, gogoAnime];
 
@@ -37,160 +44,195 @@
 		{ id: 2, name: 'Gogoanime', value: 'gogoanime', color: '#FFC119' }
 	];
 
-	const assignEpisodes = () => {
+	const assignEpisodes = async () => {
 		if ($currentProvider?.id === 0) {
-			currentEp.set(animephaeAnime?.episodes[0]);
+			if ($currentEpNumber) {
+				const ep = await animephaeAnime?.episodes?.find((e) => e?.number === $currentEpNumber);
+				currentEp.set(ep);
+			} else {
+				currentEp.set(animephaeAnime?.episodes[0]);
+			}
 		} else if ($currentProvider?.id === 1) {
-			currentEp.set(anime?.episodes[0]);
+			if ($currentEpNumber) {
+				console.log("anime eps", anime?.episodes)
+				const ep = await anime?.episodes?.find((e) => e.number.toString() === $currentEpNumber.toString());
+				console.log("ep", ep)
+				currentEp.set(ep);
+			} else {
+				currentEp.set(anime?.episodes[0]);
+			}
 		} else if ($currentProvider?.id === 2) {
-			currentEp.set(gogoAnime?.episodes[0]);
+			if ($currentEpNumber) {
+				const ep = await gogoAnime?.episodes?.find((e) => e.number === $currentEpNumber);
+				currentEp.set(ep);
+			} else {
+				currentEp.set(gogoAnime?.episodes[0]);
+			}
 		}
 	};
 
-	onMount(() => {
-		assignEpisodes();
-	});
+	// onMount(() => {
+	// 	assignEpisodes();
+	// });
 
 	afterNavigate(() => {
 		assignEpisodes();
 	});
 
+	onDestroy(()=>{
+		currentEpNumber.set(null)	
+	})
+
+	let value;
+
 	$: viewType = $storeViewType;
 </script>
 
-<div class="episodes space-y-6">
+<div class="episodes">
 	<TabGroup
 		bind:defaultIndex={selected}
 		on:change={(e) => {
 			selected = e.detail;
 			currentProvider.set(providers.find((e) => e.id === selected));
 		}}
-		class="bg-neutral"
+		class=""
 	>
-		<div class="first relative space-y-4 ">
-			<TabList class="tabs relative w-full space-x-3 wrap-0 z-20 px-4 pt-4">
+		<div class="first relative space-y-6 pb-6">
+			<TabList class="tabs relative w-full space-x-3 wrap-0 z-20">
 				{#each providers as provider}
 					<Tab
 						let:selected
-						class={selected === provider.id
-							? `bg-accent text-base-200 font-semibold hover:bg-accent-focus rounded-md tab`
-							: 'tab bg-base-100 rounded-md'}>{provider.name}</Tab
+						class={selected === provider?.id
+							? `bg-white text-base-100 font-medium rounded-md tab`
+							: 'tab bg-neutral text-base-content rounded-md font-medium'}>{provider?.name}</Tab
 					>
 				{/each}
 			</TabList>
 
-			<div class="relative z-20 w-full flex justify-between items-center gap-4 px-4">
+			<div class="relative z-20 w-full flex justify-between items-center gap-4">
 				<div class="relative flex-1 max-w-48">
 					<input
+						bind:value
 						type="text"
 						placeholder="Search episode"
-						class="input bg-base-100 placeholder:text-sm placeholder:text-base-content placeholder:opacity-50 w-full"
+						class="input bg-neutral placeholder:text-sm placeholder:text-base-content placeholder:opacity-50 w-full"
 					/>
 				</div>
 				<div class="layout-view flex gap-3">
 					<div
 						on:keydown
 						on:click={() => storeViewType.set(0)}
-						class="{viewType === 0 ? 'text-accent' : 'opacity-50'} "
+						class="{viewType === 0 ? 'text-white' : 'opacity-50'} "
 					>
 						<LayoutList size="20" />
 					</div>
 					<div
 						on:keydown
 						on:click={() => storeViewType.set(1)}
-						class="{viewType === 1 ? 'text-accent' : 'opacity-50'} "
+						class="{viewType === 1 ? 'text-white' : 'opacity-50'} "
 					>
 						<List size="20" />
 					</div>
 					<div
 						on:keydown
 						on:click={() => storeViewType.set(2)}
-						class="{viewType === 2 ? 'text-accent' : 'opacity-50'} "
+						class="{viewType === 2 ? 'text-white' : 'opacity-50'} "
 					>
 						<Grid size="20" />
 					</div>
 				</div>
 			</div>
 
-			<!-- <div
-				class="flex items-center gap-2 relative py-2 px-4"
-			>
-				<hr class="flex-1 opacity-20" />
-				<h1 class="text-sm opacity-70">EPISODES</h1>
-				<hr class="flex-1 opacity-20" />
-			</div> -->
+			<div class="flex items-center gap-2 relative">
+				<hr class="flex-1 opacity-10" />
+				<h1 class="text-sm opacity-70 font-semibold">EPISODES</h1>
+				<hr class="flex-1 opacity-10" />
+			</div>
 		</div>
 
-		<TabPanels class="max-h-[800px] relative scrollbar-hide overflow-y-auto pb-10">
+		<TabPanels class="max-h-[800px] relative scrollbar-hide overflow-y-auto">
+			<!-- <div
+				class="sticky z-50 pointer-events-none top-0 left-0 right-0 h-8 bg-gradient-to-b from-base-100 to-transparent"
+			/> -->
 			{#each sources as source}
-				{#if viewType === 0}
-					<TabPanel class=" space-y-2 first:pt-2">
-						{#each source?.episodes as ep, i}
-							<div on:keydown on:click={() => currentEp.set(ep)} let:open class="last:pb-4 group">
+				{#if viewType === 0 && source?.episodes}
+					<TabPanel class="last:pb-8 grid grid-cols-1 gap-2">
+						{#if source?.episodes?.length}
+							{#each source?.episodes as ep, i}
 								<div
-									class="{$currentEp?.id === ep?.id
-										? 'text-primary bg-neutral p-2 '
-										: 'text-white'}  flex flex-row gap-3 hover:bg-neutral md:gap-4 p-2"
+									id="{i}-{ep.title}"
+									on:keydown
+									on:click={() => currentEp.set(ep)}
+									let:open
+									class="group"
 								>
-									<div class="image h-24 aspect-video">
-										<img
-											src="https://proxy-for-movie-app.yashgajbhiye10.workers.dev/{ep?.image}"
-											alt=""
-											class="w-full h-full object-cover"
-										/>
-									</div>
-									<div class="info w-1/2 flex-1 flex flex-col justify-between">
-										<div class="g1 space-y-1">
-											<h1
-												class="{$currentEp?.id === ep?.id
-													? ''
-													: 'opacity-70'} line-clamp-2 group-hover:opacity-100"
-											>
-												{ep?.title ?? anime?.episodes[i]?.title ?? ''}
-											</h1>
-											<h1 class="opacity-60 text-xs">Episode {ep.number}</h1>
-
+									<div
+										class="{$currentEp?.id === ep?.id
+											? 'text-primary bg-primary/10'
+											: 'text-white '} flex flex-row gap-3 hover:bg-neutral md:gap-4 p-2"
+									>
+										<div class="image h-24 aspect-video">
+											<img
+												src="https://proxy-for-movie-app.yashgajbhiye10.workers.dev/{ep?.image}"
+												alt=""
+												class="w-full h-full object-cover"
+											/>
 										</div>
-										<!-- <DisclosureButton class={`${open ? '' : ' '} bg-neutral p-1  w-fit ml-auto`}>
-											<ChevronsUpDown size="16" />
-										</DisclosureButton> -->
+										<div class="info w-1/2 flex-1 flex flex-col justify-between">
+											<div class="g1 space-y-1">
+												<h1
+													class="{$currentEp?.id === ep?.id
+														? ''
+														: 'opacity-70'} line-clamp-2 group-hover:opacity-100"
+												>
+													{ep?.title ?? anime?.episodes[i]?.title ?? ''}
+												</h1>
+												<h1 class="opacity-60 text-xs">Episode {ep.number}</h1>
+											</div>
+										</div>
 									</div>
 								</div>
-							</div>
-						{/each}
+							{/each}
+						{/if}
 					</TabPanel>
 				{:else if viewType === 1}
-					<TabPanel class="space-y-2 first:pt-2">
-						{#each source.episodes as ep, i}
-							<div
-								class="{$currentEp?.id === ep?.id
-									? 'text-info bg-neutral px-2 '
-									: ''} flex flex-row gap-2 px-2 hover:bg-neutral"
-							>
-								<div on:keydown on:click={() => currentEp.set(ep)} class="g1 space-y-1 flex-1 py-2">
-									<h1 class="opacity-60 text-xs"># Episode {ep?.number}</h1>
-									<h1
-										class="line-clamp-2 text-sm {$currentEp?.id === ep?.id
-											? 'opacity-100'
-											: ' opacity-80'} hover:opacity-100"
+					<TabPanel class="space-y-2">
+						{#if source?.episodes?.length}
+							{#each source?.episodes as ep, i}
+								<div
+									class="{$currentEp?.id === ep?.id
+										? 'text-primary bg-primary/10'
+										: 'text-white'} flex flex-row gap-2 px-2 hover:bg-neutral"
+								>
+									<div
+										on:keydown
+										on:click={() => currentEp.set(ep)}
+										class="g1 space-y-1 flex-1 py-2"
 									>
-										{ep?.title ?? anime?.episodes[i]?.title ?? ''}
-									</h1>
+										<h1
+											class="line-clamp-2 {$currentEp?.id === ep?.id
+												? ''
+												: ' opacity-70'} hover:opacity-100"
+										>
+											{ep?.title ?? anime?.episodes[i]?.title ?? ''}
+										</h1>
+										<h1 class="opacity-60 text-xs"># Episode {ep?.number}</h1>
+									</div>
 								</div>
-							</div>
-						{/each}
+							{/each}
+						{/if}
 					</TabPanel>
 				{:else if viewType === 2}
-					<TabPanel class="space-y-4 pt-2">
-						<div class="grid grid-cols-8 gap-3">
-							{#if source?.episodes}
-								{#each source.episodes as ep}
+					<TabPanel class="space-y-4 ">
+						<div class="grid grid-cols-8 gap-2">
+							{#if source?.episodes?.length}
+								{#each source?.episodes as ep}
 									<div
 										on:keydown
 										on:click={() => currentEp.set(ep)}
 										class="{$currentEp?.id === ep?.id
-											? 'text-info border-none bg-neutral'
-											: 'border-base-content/20'} border font-semibold hover:border-primary p-2 text-center duration-200 cursor-pointer"
+											? 'bg-primary/20 text-primary '
+											: 'text-base-content/80 hover:text-white bg-neutral '} font-medium text-sm p-2 text-center duration-200 cursor-pointer"
 									>
 										<h1 class="">{ep?.number}</h1>
 									</div>

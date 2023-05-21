@@ -2,32 +2,67 @@
 	import Artplayer from 'artplayer';
 	import { onDestroy, onMount } from 'svelte';
 	import { currentEp, currentProvider, continueWatching } from '$lib/stores/playerStore.js';
+	import { afterNavigate } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	// let proxy = 'https://m3u8proxy.yashgajbhiye10.workers.dev/?url=';
 	// let proxy = 'https://m3u8-proxy-cors-eta.vercel.app/cors?url=';
 	let proxy = 'https://proxy.vnxservers.com/proxy/m3u8/';
+
+	$: arr = $continueWatching;
+	export let anime
+	let currentTime = 0
+
+	$: playingEpisode = {
+		id: anime?.id.toString(),
+		title: anime?.title?.english ?? anime?.title?.romaji,
+		image: anime?.image,
+		rating: anime?.rating,
+		totalEpisodes: anime?.totalEpisodes,
+		eps: [
+			{
+				number: $currentEp?.number,
+				title: $currentEp?.title,
+				image: $currentEp?.image,
+				time: currentTime,
+				duration: duration,
+				percent: ((currentTime - 1) / duration) * 100
+			}
+		],
+		lastWatched: {
+			percent: (currentTime / duration) * 100,
+			number: $currentEp?.number
+		}
+	};
 
 	export let malId;
 	let duration;
 	let openingTime;
 	let endingTime;
 	let captionArray;
-
-	$: console.log(openingTime);
-	$: console.log(endingTime);
+	let art;
+	let url = null;
+	let ready = false;
 
 	const getSkipTime = async () => {
-		console.log('hi');
-		const res = await fetch(
-			`https://api.aniskip.com/v2/skip-times/${malId}/${$currentEp?.number}?types[]=ed&types[]=mixed-ed&types[]=mixed-op&types[]=op&types[]=recap&episodeLength=${duration}`
-		);
-		const resJson = await res.json();
-		const array = resJson.results.map(({ skipType, interval }) => ({ skipType, interval }));
-		const openingTimeObj = array.find((e) => e.skipType === 'op');
-		const endingTimeObj = array.find((e) => e.skipType === 'ed');
+		try {
+			const res = await fetch(
+				`https://api.aniskip.com/v2/skip-times/${malId}/${$currentEp?.number}?types[]=ed&types[]=mixed-ed&types[]=mixed-op&types[]=op&types[]=recap&episodeLength=${duration}`
+			);
+			const resJson = await res.json();
+			if (resJson.found) {
+				const array = resJson.results.map(({ skipType, interval }) => ({ skipType, interval }));
+				const openingTimeObj = array.find((e) => e.skipType === 'op');
+				const endingTimeObj = array.find((e) => e.skipType === 'ed');
 
-		openingTime = openingTimeObj?.interval?.startTime;
-		endingTime = openingTimeObj?.interval?.endTime;
+				openingTime = openingTimeObj?.interval?.startTime;
+				endingTime = openingTimeObj?.interval?.endTime;
+			} else {
+				console.log('skipTime not found');
+			}
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	function playM3u8(video, url, art) {
@@ -45,17 +80,12 @@
 		}
 	}
 
-	let art;
-	let url = null;
 
-	let ready = false;
-
-	$: if ($currentEp) {
-		streamEpisode($currentEp.id);
+	$: if ($currentEp?.id) {
+		streamEpisode($currentEp?.id);
 	}
 
 	const getDefaultSource = (sources) => {
-		console.log('sources:', sources);
 		const defaultSource = sources.find(
 			(source) => source.quality === 'auto' || source.quality === 'default'
 		);
@@ -157,8 +187,18 @@
 			]
 		});
 
+		// art.on('ready', () => {
+		// 	console.info('ready');
+		// });
+
+		
+		art.on('video:timeupdate', () => {
+			currentTime = Math.trunc(art.currentTime);
+		});
+
 		art.on('video:loadeddata', async (e) => {
 			duration = await e.target.duration;
+			await findAndSeek()
 
 			await getSkipTime();
 
@@ -166,13 +206,13 @@
 				name: 'button',
 				html: '<button type="button" class="skip-button"><span>Click me !!</span></button>',
 				style: {
-						display: 'none',
-						position: 'absolute',
-						right: '20px',
-						top: '20px',
-						backgroundColor: 'red',
-						padding: '2px'
-					},
+					display: 'none',
+					position: 'absolute',
+					right: '20px',
+					top: '20px',
+					backgroundColor: 'red',
+					padding: '2px'
+				},
 				click() {
 					art.seek = endingTime;
 				},
@@ -201,70 +241,42 @@
 		});
 	});
 
+	// afterNavigate(() => {
+	// });
+
 	onDestroy(() => {
-		art.destroy();
+		updateContinueWatching();
 	});
+
+	const findAndSeek = async () => {
+		const anime = await arr.find(obj=> obj['id'] === $page.params.id.toString())
+		if(anime){
+			const ep = anime.eps.find(e=> e?.number === $currentEp?.number)
+			if(ep){
+				console.log("found time")
+				art.seek =  ep.time
+			}
+		}
+	}
+
+	const updateContinueWatching = async () => {
+		const foundIndex = await arr.findIndex((obj) => obj['id'] === $page.params.id);
+		if (foundIndex !== -1) {
+			const obj = arr[foundIndex].eps.find((obj) => obj['number'] === playingEpisode.eps[0].number);
+			if (obj) {
+				obj.time = playingEpisode.eps[0].time;
+			} else if (playingEpisode.eps[0].time > 20) {
+				arr[foundIndex].eps.unshift(playingEpisode.eps[0]);
+			}
+			if (playingEpisode.eps[0].time > 20) {
+				arr[foundIndex].lastWatched = playingEpisode.lastWatched;
+			}
+		} else if (playingEpisode.eps[0].time > 20) {
+			arr.unshift(playingEpisode);
+		}
+		continueWatching.set(arr);
+	};
 </script>
 
 <div bind:this={art} class="artplayer-app w-full h-full object-contain" />
 
-<style>
-	/* .art-player-button {
-		position: fixed;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-	}
-
-	.skip-button {
-		display: block;
-		position: absolute;
-		right: 20px;
-		top: 20px;
-		width: 200px;
-		height: 40px;
-		line-height: 40px;
-		font-size: 18px;
-		font-family: sans-serif;
-		text-decoration: none;
-		color: #333;
-		border: 2px solid #333;
-		letter-spacing: 2px;
-		text-align: center;
-		position: relative;
-		transition: all 0.35s;
-	}
-
-	.skip-button span {
-		position: relative;
-		z-index: 2;
-	}
-
-	.skip-button:after {
-		position: absolute;
-		content: '';
-		top: 0;
-		left: 0;
-		width: 0;
-		height: 100%;
-		background: #ff003b;
-		transition: all 0.35s;
-	}
-
-	.skip-button:hover {
-		color: #fff;
-	}
-
-	.skip-button:hover:after {
-		width: 100%;
-	} */
-
-	/* .artplayer-app button{
-		display: none;
-		position: absolute;
-		bottom: 80px;
-		left: 20px;
-	} */
-
-
-</style>

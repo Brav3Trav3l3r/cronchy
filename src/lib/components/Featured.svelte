@@ -27,7 +27,7 @@
 				class="absolute inset-x-0 h-48 bottom-0 bg-gradient-to-t from-base-100 to-transparent translate-y-1"
 			/>
 			<div class="absolute inset-x-0 h-48 top-0 bg-gradient-to-b from-base-100 to-transparent" />
-			<div class="absolute inset-0 bg-gradient-to-r via-base-100/10 from-base-100 to-transparent" />
+			<div class="absolute inset-0 bg-gradient-to-r via-base-100/5 from-base-100 to-transparent" />
 		</div>
 
 		<div
@@ -57,7 +57,7 @@
 					</div>
 				</button> -->
 				<button class="btn btn-primary rounded-full flex items-center gap-2">
-					<Play fill="#17181c" siz="20" />
+					<Play fill="#4B0055" size="20" strokeWidth=0 />
 					<h1 class="font-bold hidden md:block">Play</h1>
 				</button>
 				<button class="btn btn-outline bg-base-100/40 rounded-full flex items-center gap-2">

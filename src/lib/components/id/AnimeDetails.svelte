@@ -127,7 +127,7 @@
 				<div class="genres">
 					<div class="info flex flex-wrap gap-x-3 gapy-2">
 						{#if anime?.genres}
-							{#each anime.genres as genre}
+							{#each anime?.genres as genre}
 								<button class="badge badge-lg text-sm bg-info/10 border-info no-animation text-info"
 									>{genre}</button
 								>
@@ -159,7 +159,7 @@
 				<div class=" space-y-4">
 					<h1 class="font-medium text-lg">Relations</h1>
 					<div class="flex flex-col gap-3">
-						{#each anime.relations as anime}
+						{#each anime?.relations as anime}
 							<a href="/{anime.id}?dub=false"
 								><div class=" flex flex-row gap-4 md:gap-4 group">
 									<div class="image h-32 aspect-[2/3]">
@@ -197,7 +197,7 @@
 					<div
 						class="card-group grid gap-x-4 gap-y-8 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-3"
 					>
-						{#each anime.recommendations as anime}
+						{#each anime?.recommendations as anime}
 							{#if anime.id}
 								<Card {anime} showRating="true" />
 							{/if}

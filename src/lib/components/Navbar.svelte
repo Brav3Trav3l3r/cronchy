@@ -21,7 +21,7 @@
 		y > 20 || $page.route.id !== '/'
 			? 'bg-neutral  shadow-[0_2.8px_2.2px_rgba(0,_0,_0,_0.034),_0_6.7px_5.3px_rgba(0,_0,_0,_0.048),_0_12.5px_10px_rgba(0,_0,_0,_0.06),_0_22.3px_17.9px_rgba(0,_0,_0,_0.072),_0_41.8px_33.4px_rgba(0,_0,_0,_0.086),_0_100px_80px_rgba(0,_0,_0,_0.12)]'
 			: 'bg-neutral/0'
-	} fixed top-0 inset-x-0 h-fit z-20 transition-all duration-300`}
+	} fixed top-0 inset-x-0 h-fit transition-all duration-300 z-50`}
 >
 	<!-- <div class="announcement">
 		<div class="flex items-center justify-between gap-4 bg-primary px-4 py-3 text-base-100">

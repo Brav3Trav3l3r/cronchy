@@ -23,7 +23,7 @@
 			</div>
 		</div>
 		<div class="info space-y-1">
-			<h1 class="line-clamp-2 opacity-80 text-sm font-semibold group-hover:opacity-100">{title}</h1>
+			<h1 class="line-clamp-2 opacity-80 font-semibold group-hover:opacity-100">{title}</h1>
 			<div class="opacity-50 group-hover:opacity-70 text-sm flex gap-2 items-center">
 				<h1>{anime?.totalEpisodes ?? anime?.episodeNumber ?? anime?.episodes ?? '0'} eps</h1>
 				<h1>•</h1>

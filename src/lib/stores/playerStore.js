@@ -3,6 +3,8 @@ import { browser } from '$app/environment';
 
 export const playerOn = writable(false);
 export const currentEp = writable(null);
+export const currentEpNumber = writable(null);
+
 
 export const currentProvider = writable(
 	(browser && JSON.parse(localStorage.getItem('currentProvider'))) || {

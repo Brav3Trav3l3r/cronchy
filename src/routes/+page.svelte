@@ -11,6 +11,7 @@
 	import { Plus } from 'lucide-svelte';
 
 	import { onDestroy } from 'svelte';
+	import ContinueWatching from '../lib/components/ContinueWatching.svelte';
 
 	let selected = 0;
 
@@ -63,32 +64,30 @@
 		{
 			id: 0,
 			name: 'Trending',
-			anchor: "trending",
+			anchor: 'trending',
 			value: trend,
-			icon: "streamline-emojis:fire"
+			icon: 'streamline-emojis:fire'
 		},
 		{
 			id: 1,
 			name: 'Recent episodes',
-			anchor: "recent-episodes",
+			anchor: 'recent-episodes',
 			value: recent,
-			icon: "streamline-emojis:seedling"
+			icon: 'streamline-emojis:seedling'
 		},
 		{
 			id: 2,
 			name: 'Popular',
-			anchor: "popular",
+			anchor: 'popular',
 			value: popular,
-			icon: "streamline-emojis:rocket"
+			icon: 'streamline-emojis:rocket'
 		}
 	];
 </script>
 
-<div class="main">
+<div class="main space-y-6">
 	<Featured />
-	<!-- <ContinueWatching/> -->
-
-	<div class="main flex mt-12 px-4 md:px-6 lg:px-16 space-y-20 flex-col">
+	<div class="main flex mt-12 px-4 md:px-6 lg:px-16 space-y-16 flex-col">
 		<!-- <TabGroup
 			on:change={(e) => (selected = e.detail)}
 			class="main mx-4 md:mx-6  pb-10 rounded-md  space-y-8"
@@ -188,19 +187,22 @@
 				>
 			</TabPanels>
 		</TabGroup> -->
+		<ContinueWatching />
 
 		{#each categories as item}
 			<div class="trend space-y-8">
 				<div class="heading flex justify-between items-center">
 					<div class="gap-3 items-center flex">
-						<h1 class="text-xl font-medium">{item?.name}</h1>
+						<h1 class="text-2xl font-semibold">{item?.name}</h1>
 						<div class="icon text-3xl flex">
 							<iconify-icon icon={item?.icon} />
 						</div>
 					</div>
 					<a href="/anime/{item.anchor}"><h1 class="opacity-80">View all</h1></a>
 				</div>
-				<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-3 sm:gap-x-4 gap-y-10">
+				<div
+					class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-3 sm:gap-x-4 gap-y-10"
+				>
 					{#if item?.value}
 						{#each item?.value as anime}
 							<Card {anime} />

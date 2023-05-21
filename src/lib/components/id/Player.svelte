@@ -119,6 +119,7 @@
 
 	afterNavigate(() => {
 		currentEp.set(null);
+		art.destroy()
 	});
 
 	onDestroy(async () => {

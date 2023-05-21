@@ -6,6 +6,7 @@
 	import Navbar from '../lib/components/Navbar.svelte';
 	import { afterNavigate, beforeNavigate, invalidateAll } from '$app/navigation';
 	import Footer from '../lib/components/Footer.svelte';
+	
 	NProgress.configure({ showSpinner: false });
 
 	beforeNavigate(() => {
