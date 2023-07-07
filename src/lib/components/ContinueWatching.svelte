@@ -48,7 +48,7 @@
 									><div class="card aspect-video relative">
 										<img
 											class="w-full h-full object-cover"
-											src="https://proxy-for-movie-app.yashgajbhiye10.workers.dev/{anime.eps[0]
+											src="{anime.eps[0]
 												.image}"
 											alt=""
 										/>

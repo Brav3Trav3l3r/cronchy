@@ -170,7 +170,7 @@
 									>
 										<div class="image h-24 aspect-video">
 											<img
-												src="https://proxy-for-movie-app.yashgajbhiye10.workers.dev/{ep?.image}"
+												src="{ep?.image}"
 												alt=""
 												class="w-full h-full object-cover"
 											/>
