@@ -1,5 +1,14 @@
 <script>
-	import { ChevronsUpDown, Grid, LayoutList, List, MoreHorizontal, Search } from 'lucide-svelte';
+	import {
+		ChevronsUpDown,
+		Grid,
+		LayoutList,
+		List,
+		MoreHorizontal,
+		Search,
+		Subtitles,
+		Mic
+	} from 'lucide-svelte';
 
 	import { page } from '$app/stores';
 
@@ -14,26 +23,24 @@
 		TabPanels
 	} from '@rgossiaux/svelte-headlessui';
 
-	import { afterNavigate, beforeNavigate } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 
 	export let anime;
 	export let gogoAnime;
 	export let animephaeAnime;
 
-	import { slide } from 'svelte/transition';
-
 	import {
 		currentEp,
 		currentEpNumber,
 		currentProvider,
-		storeViewType
+		storeViewType,
+		isDub
 	} from '$lib/stores/playerStore.js';
 	import { onDestroy, onMount } from 'svelte';
 
 	$: selected = $currentProvider.id;
 
 	let loading = false;
-
 
 	$: sources = [animephaeAnime, anime, gogoAnime];
 
@@ -53,7 +60,9 @@
 			}
 		} else if ($currentProvider?.id === 1) {
 			if ($currentEpNumber) {
-				const ep = await anime?.episodes?.find((e) => e.number.toString() === $currentEpNumber.toString());
+				const ep = await anime?.episodes?.find(
+					(e) => e.number.toString() === $currentEpNumber.toString()
+				);
 				currentEp.set(ep);
 			} else {
 				currentEp.set(anime?.episodes[0]);
@@ -68,17 +77,13 @@
 		}
 	};
 
-	// onMount(() => {
-	// 	assignEpisodes();
-	// });
-
 	afterNavigate(() => {
 		assignEpisodes();
 	});
 
-	onDestroy(()=>{
-		currentEpNumber.set(null)	
-	})
+	onDestroy(() => {
+		currentEpNumber.set(null);
+	});
 
 	let value;
 
@@ -94,17 +99,29 @@
 		}}
 		class=""
 	>
-		<div class="first relative space-y-6 pb-6">
-			<TabList class="tabs relative w-full space-x-3 wrap-0 z-20">
-				{#each providers as provider}
-					<Tab
-						let:selected
-						class={selected === provider?.id
-							? `bg-white text-base-100 font-medium rounded-md tab`
-							: 'tab bg-neutral text-base-content rounded-md font-medium'}>{provider?.name}</Tab
-					>
-				{/each}
-			</TabList>
+		<div class="first relative space-y-6 pb-6 p-3 lg:p-0">
+			<div class="g1 flex justify-between items-center">
+				<TabList class="tabs relative w-full space-x-3 wrap-0 z-20">
+					{#each providers as provider}
+						<Tab
+							let:selected
+							class={selected === provider?.id
+								? `bg-white text-base-100 font-medium rounded-md tab`
+								: 'tab bg-neutral text-base-content rounded-md font-medium'}>{provider?.name}</Tab
+						>
+					{/each}
+				</TabList>
+				
+				<input
+					type="checkbox"
+					class="toggle"
+					checked={$isDub}
+					on:change={(e) => {
+						isDub.set(e.target.checked);
+						goto(`/${anime.id}?dub=${$isDub}`);
+					}}
+				/>
+			</div>
 
 			<div class="relative z-20 w-full flex justify-between items-center gap-4">
 				<div class="relative flex-1 max-w-48">
@@ -169,11 +186,7 @@
 											: 'text-white '} flex flex-row gap-3 hover:bg-neutral md:gap-4 p-2"
 									>
 										<div class="image h-24 aspect-video">
-											<img
-												src="{ep?.image}"
-												alt=""
-												class="w-full h-full object-cover"
-											/>
+											<img src={ep?.image} alt="" class="w-full h-full object-cover" />
 										</div>
 										<div class="info w-1/2 flex-1 flex flex-col justify-between">
 											<div class="g1 space-y-1">

@@ -44,7 +44,7 @@
 								}}
 								class="mian flex flex-col gap-3"
 							>
-								<a href="/{anime.id}?dub={$isDub.value}&provider={$currentProvider.value}"
+								<a href="/{anime.id}?dub={$isDub}&provider={$currentProvider.value}"
 									><div class="card aspect-video relative">
 										<img
 											class="w-full h-full object-cover"
