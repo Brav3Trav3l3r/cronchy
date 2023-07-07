@@ -36,7 +36,6 @@
 	};
 
 	const updateContinueWatching = async () => {
-		console.log('ranUpdate');
 		const foundIndex = await arr.findIndex((obj) => obj['id'] === $page.params.id);
 		if (foundIndex !== -1) {
 			const obj = arr[foundIndex].eps.find((obj) => obj['number'] === playingEpisode.eps[0].number);
@@ -60,21 +59,17 @@
 	let playerCurrentTime;
 
 	// let proxy = 'https://m3u8-proxy-cors-eta.vercel.app/cors?url=';
-	let proxy = "https://m3u8proxy.yashgajbhiye10.workers.dev/?url="
+	let proxy = "https://proxy.vnxservers.com/proxy/m3u8/"
 
 	const getDefaultSource = (sources) => {
-		console.log('sources:', sources);
 		const defaultSource = sources.find(
 			(source) => source.quality === 'auto' || source.quality === 'default'
 		);
-		if (defaultSource) {
-			console.log('defaultSource found', defaultSource);
-		}
+		
 		return defaultSource.url || sources[0].url;
 	};
 
 	const streamEpisode = async (id) => {
-		console.log('ran');
 		const response = await fetch(
 			`https://api-consumet-rust.vercel.app/meta/anilist/watch/${id}?provider=${$currentProvider.value}`
 		);
@@ -83,7 +78,6 @@
 		if ($currentProvider.value === 'zoro') {
 			captions = streamingSrc?.subtitles;
 		}
-		console.log(url);
 		player.src = `${proxy}${url}`;
 		// player.src =  `${proxy}${encodeURIComponent(getDefaultSource(streamingSrc.sources))}`;
 	};
@@ -132,7 +126,7 @@
 	controls
 	aspect-ratio="16/9"
 	bind:this={player}
-	poster="https://proxy-for-movie-app.yashgajbhiye10.workers.dev/{$currentEp?.image}"
+	poster="{$currentEp?.image}"
 	class="w-full h-full object-contain"
 >
 	<media-outlet />

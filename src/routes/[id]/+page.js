@@ -6,7 +6,7 @@ export async function load({ params, url }) {
 
 	const zoro = async () => {
 		const res = await fetch(
-			`https://proxy-for-movie-app.yashgajbhiye10.workers.dev/https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=zoro`
+			`https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=zoro`
 		);
 		if (res.ok) {
 			return await res.json();
@@ -14,7 +14,7 @@ export async function load({ params, url }) {
 	};
 	const gogoanime = async () => {
 		const res = await fetch(
-			`https://proxy-for-movie-app.yashgajbhiye10.workers.dev/https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=gogoanime`
+			`https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=gogoanime`
 		);
 		if (res.ok) {
 			return await res.json();
@@ -22,7 +22,7 @@ export async function load({ params, url }) {
 	};
 	const animephae = async () => {
 		const res = await fetch(
-			`https://proxy-for-movie-app.yashgajbhiye10.workers.dev/https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=animephae`
+			`https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=animephae`
 		);
 		if (res.ok) {
 			return await res.json();

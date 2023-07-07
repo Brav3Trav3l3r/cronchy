@@ -34,7 +34,6 @@
 
 	let loading = false;
 
-	$:console.log($currentEpNumber)
 
 	$: sources = [animephaeAnime, anime, gogoAnime];
 
@@ -54,9 +53,7 @@
 			}
 		} else if ($currentProvider?.id === 1) {
 			if ($currentEpNumber) {
-				console.log("anime eps", anime?.episodes)
 				const ep = await anime?.episodes?.find((e) => e.number.toString() === $currentEpNumber.toString());
-				console.log("ep", ep)
 				currentEp.set(ep);
 			} else {
 				currentEp.set(anime?.episodes[0]);

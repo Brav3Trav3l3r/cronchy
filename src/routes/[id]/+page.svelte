@@ -22,7 +22,7 @@
 				<img src="https://proxy-for-movie-app.yashgajbhiye10.workers.dev/{$currentEp?.image}" alt="" class="w-full h-full opacity-50 object-cover">
 			</div> -->
 			{#key $currentEp?.id}
-				<Player2 malId={anime?.malId} {anime}/>
+				<Player2 malId={anime?.malId} {anime} />
 			{/key}
 		</div>
 		<div class="discription w-full px-4 space-y-4 md:px-0">

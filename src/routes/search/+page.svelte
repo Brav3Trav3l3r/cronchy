@@ -44,7 +44,7 @@
 	const getData = async () => {
 		const newUrl = await createUrl();
 		console.log(newUrl);
-		const res = await fetch(`https://proxy-for-movie-app.yashgajbhiye10.workers.dev/https://api-consumet-rust.vercel.app/meta/anilist/advanced-search` + newUrl);
+		const res = await fetch(`https://api-consumet-rust.vercel.app/meta/anilist/advanced-search` + newUrl);
 		const data = await res.json();
 		results = data.results;
 	};
@@ -118,7 +118,6 @@
 	$: newObj = [...obj.map((e) => e.query), { genres: genresList }, { query: queryString }];
 
 	let queryString = '';
-	$: console.log(query);
 
 	$: genresList = [];
 </script>

@@ -10,8 +10,8 @@
 	let proxy = 'https://proxy.vnxservers.com/proxy/m3u8/';
 
 	$: arr = $continueWatching;
-	export let anime
-	let currentTime = 0
+	export let anime;
+	let currentTime = 0;
 
 	$: playingEpisode = {
 		id: anime?.id.toString(),
@@ -80,7 +80,6 @@
 		}
 	}
 
-
 	$: if ($currentEp?.id) {
 		streamEpisode($currentEp?.id);
 	}
@@ -93,9 +92,15 @@
 	};
 
 	const streamEpisode = async (id) => {
-		const response = await fetch(
-			`https://api-consumet-rust.vercel.app/meta/anilist/watch/${id}?provider=${$currentProvider.value}`
-		);
+		let response;
+		try {
+			response = await fetch(
+				`https://api.consumet.org/meta/anilist/watch/${id}?provider=${$currentProvider.value}`
+			);
+		} catch (error) {
+			console.error(error);
+			currentProvider.set('gogoanime');
+		}
 		const streamingSrc = await response.json();
 		url = await getDefaultSource(streamingSrc.sources);
 		art.url = `${proxy}${encodeURIComponent(url)}`;
@@ -176,7 +181,7 @@
 					},
 					mounted(button) {
 						this.on('video:timeupdate', () => {
-							if (this.currentTime > 5 && this.currentTime < 10) {
+							if (this?.currentTime > 5 && this?.currentTime < 10) {
 								button.style.display = 'block';
 							} else {
 								button.style.display = 'none';
@@ -191,34 +196,34 @@
 		// 	console.info('ready');
 		// });
 
-		
 		art.on('video:timeupdate', () => {
-			currentTime = Math.trunc(art.currentTime);
+			currentTime = Math.trunc(art?.currentTime);
 		});
 
 		art.on('video:loadeddata', async (e) => {
 			duration = await e.target.duration;
-			await findAndSeek()
+			await findAndSeek();
 
 			await getSkipTime();
 
 			art.layers.update({
 				name: 'button',
-				html: '<button type="button" class="skip-button"><span>Click me !!</span></button>',
+				html: '<button type="button" class="skip-button"><span>Skip!!</span></button>',
 				style: {
 					display: 'none',
 					position: 'absolute',
 					right: '20px',
 					top: '20px',
-					backgroundColor: 'red',
-					padding: '2px'
+					backgroundColor: 'white',
+					padding: '3px',
+					color:'black'
 				},
 				click() {
 					art.seek = endingTime;
 				},
 				mounted(button) {
 					this.on('video:timeupdate', () => {
-						if (this.currentTime > openingTime && this.currentTime < endingTime) {
+						if (this?.currentTime > openingTime && this?.currentTime < endingTime) {
 							button.style.display = 'block';
 						} else {
 							button.style.display = 'none';
@@ -249,15 +254,15 @@
 	});
 
 	const findAndSeek = async () => {
-		const anime = await arr.find(obj=> obj['id'] === $page.params.id.toString())
-		if(anime){
-			const ep = anime.eps.find(e=> e?.number === $currentEp?.number)
-			if(ep){
-				console.log("found time")
-				art.seek =  ep.time
+		const anime = await arr.find((obj) => obj['id'] === $page.params.id.toString());
+		if (anime) {
+			const ep = anime.eps.find((e) => e?.number === $currentEp?.number);
+			if (ep) {
+				console.log('found time');
+				art.seek = ep.time;
 			}
 		}
-	}
+	};
 
 	const updateContinueWatching = async () => {
 		const foundIndex = await arr.findIndex((obj) => obj['id'] === $page.params.id);
@@ -279,4 +284,3 @@
 </script>
 
 <div bind:this={art} class="artplayer-app w-full h-full object-contain" />
-
