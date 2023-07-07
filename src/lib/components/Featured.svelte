@@ -2,7 +2,7 @@
 	import { Play, ListVideo, Share } from 'lucide-svelte';
 	import '@splidejs/svelte-splide/css';
 	import { Splide, SplideSlide } from '@splidejs/svelte-splide';
-
+	import {isDub} from '$lib/stores/playerStore.js'
 
 	let collections=[{
 		logo: "https://animeanime.global/wp-content/uploads/2021/07/416960.jpg",
@@ -51,23 +51,18 @@
 				make a scandal-free return to the stage.
 			</p>
 			<div class="interact flex gap-4 items-center">
-				<!-- <button class="btn btn-lg btn-primary rounded-full  aspect-square">
-					<div class="icon flex translate-x-0.5">
-						<Play fill="#17181c" size="32" strokeWidth=0/>
-					</div>
-				</button> -->
-				<button class="btn btn-primary rounded-full flex items-center gap-2">
+				<a href="/105333?dub={$isDub}" class="btn btn-primary rounded-full flex items-center gap-2">
 					<Play fill="#4B0055" size="20" strokeWidth=0 />
 					<h1 class="font-bold hidden md:block">Play</h1>
-				</button>
-				<button class="btn btn-outline bg-base-100/40 rounded-full flex items-center gap-2">
+				</a>
+				<!-- <button  class="btn btn-outline bg-base-100/40 rounded-full flex items-center gap-2">
 					<ListVideo siz="20" />
 					<h1 class="font-bold hidden md:block">Add to wathclist</h1>
 				</button>
 				<button class="btn btn-outline bg-base-100/40 rounded-full flex items-center gap-2">
 					<Share size="20" />
 					<h1 class="font-bold hidden md:block">Share</h1>
-				</button>
+				</button> -->
 			</div>
 		</div>
 	</div>
