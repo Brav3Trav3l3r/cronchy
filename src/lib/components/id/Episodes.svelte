@@ -111,15 +111,17 @@
 					{/each}
 				</TabList>
 
-				<input
-					type="checkbox"
-					class="toggle"
-					checked={$isDub}
-					on:change={(e) => {
-						isDub.set(e.target.checked);
-						goto(`/${anime.id}?dub=${$isDub}`);
-					}}
-				/>
+				<div class="tooltip" data-tip="Switch audio">
+					<input
+						type="checkbox"
+						class="toggle"
+						checked={$isDub}
+						on:change={(e) => {
+							isDub.set(e.target.checked);
+							goto(`/${anime.id}?dub=${$isDub}`);
+						}}
+					/>
+				</div>
 			</div>
 
 			<div class="relative z-20 w-full flex justify-between items-center gap-4">
