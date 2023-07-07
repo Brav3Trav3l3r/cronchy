@@ -5,8 +5,7 @@
 	import { afterNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	// let proxy = 'https://m3u8proxy.yashgajbhiye10.workers.dev/?url=';
-	// let proxy = 'https://m3u8-proxy-cors-eta.vercel.app/cors?url=';
+
 	let proxy = 'https://proxy.vnxservers.com/proxy/m3u8/';
 
 	$: arr = $continueWatching;

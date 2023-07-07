@@ -26,8 +26,15 @@
 	import { afterNavigate, beforeNavigate, goto, invalidateAll } from '$app/navigation';
 
 	export let anime;
-	export let gogoAnime;
 	export let animephaeAnime;
+
+	const noEpsAlert = () => {
+		if (anime?.episodes.length === 0 || animephaeAnime?.episodes.length === 0) {
+			alert('No episodes available. Try switching audio');
+		}
+	};
+
+	$: noEpsAlert();
 
 	import {
 		currentEp,
@@ -42,12 +49,11 @@
 
 	let loading = false;
 
-	$: sources = [animephaeAnime, anime, gogoAnime];
+	$: sources = [animephaeAnime, anime];
 
 	let providers = [
 		{ id: 0, name: 'Animephae', value: 'animephae', color: '#D5005A' },
-		{ id: 1, name: 'Zoro', value: 'zoro', color: '#CFD660' },
-		{ id: 2, name: 'Gogoanime', value: 'gogoanime', color: '#FFC119' }
+		{ id: 1, name: 'Gogoanime', value: 'gogoanime', color: '#FFC119' }
 	];
 
 	const assignEpisodes = async () => {
@@ -66,13 +72,6 @@
 				currentEp.set(ep);
 			} else {
 				currentEp.set(anime?.episodes[0]);
-			}
-		} else if ($currentProvider?.id === 2) {
-			if ($currentEpNumber) {
-				const ep = await gogoAnime?.episodes?.find((e) => e.number === $currentEpNumber);
-				currentEp.set(ep);
-			} else {
-				currentEp.set(gogoAnime?.episodes[0]);
 			}
 		}
 	};
@@ -99,7 +98,7 @@
 		}}
 		class=""
 	>
-		<div class="first relative space-y-6 pb-6 p-3 lg:p-0">
+		<div class="first relative space-y-6 pb-6 p-3 lg:p-0 lg:pb-6">
 			<div class="g1 flex justify-between items-center">
 				<TabList class="tabs relative w-full space-x-3 wrap-0 z-20">
 					{#each providers as provider}
@@ -111,7 +110,7 @@
 						>
 					{/each}
 				</TabList>
-				
+
 				<input
 					type="checkbox"
 					class="toggle"
@@ -203,6 +202,8 @@
 									</div>
 								</div>
 							{/each}
+						{:else}
+							<h1>No episodes. Switch audio or change provider</h1>
 						{/if}
 					</TabPanel>
 				{:else if viewType === 1}
@@ -230,25 +231,9 @@
 									</div>
 								</div>
 							{/each}
+						{:else}
+							<h1>No episodes. Switch audio or change provider</h1>
 						{/if}
-					</TabPanel>
-				{:else if viewType === 2}
-					<TabPanel class="space-y-4 ">
-						<div class="grid grid-cols-8 gap-2">
-							{#if source?.episodes?.length}
-								{#each source?.episodes as ep}
-									<div
-										on:keydown
-										on:click={() => currentEp.set(ep)}
-										class="{$currentEp?.id === ep?.id
-											? 'bg-primary/20 text-primary '
-											: 'text-base-content/80 hover:text-white bg-neutral '} font-medium text-sm p-2 text-center duration-200 cursor-pointer"
-									>
-										<h1 class="">{ep?.number}</h1>
-									</div>
-								{/each}
-							{/if}
-						</div>
 					</TabPanel>
 				{/if}
 			{/each}

@@ -62,7 +62,7 @@
 					</div>
 				{/if} -->
 		</div>
-		<a href="/{anime.id}?dub=${$isDub}"
+		<a href="/{anime.id}?dub={$isDub}"
 			><img src={anime.image} alt="" class="brightness-90 h-full w-full object-cover" /></a
 		>
 		<div

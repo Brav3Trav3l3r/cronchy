@@ -4,14 +4,14 @@ export async function load({ params, url }) {
 
 	let title;
 
-	const zoro = async () => {
-		const res = await fetch(
-			`https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=zoro`
-		);
-		if (res.ok) {
-			return await res.json();
-		}
-	};
+	// const zoro = async () => {
+	// 	const res = await fetch(
+	// 		`https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=zoro`
+	// 	);
+	// 	if (res.ok) {
+	// 		return await res.json();
+	// 	}
+	// };
 	const gogoanime = async () => {
 		const res = await fetch(
 			`https://api-consumet-rust.vercel.app/meta/anilist/info/${params.id}?dub=${dub}&provider=gogoanime`
@@ -30,7 +30,6 @@ export async function load({ params, url }) {
 	};
 
 	return {
-		zoro: zoro(),
 		gogoanime: gogoanime(),
 		animephae: animephae()
 	};

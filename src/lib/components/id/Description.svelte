@@ -8,9 +8,9 @@
 <main>
 	<div class="contain py-4 flex items-center justify-between w-full gap-3">
 		<div class="title space-y-1 flex flex-col justify-center">
-			<h1 class="font-medium text-white text-lg line-clamp-1">{$currentEp?.number}. {$currentEp?.title}</h1>
+			<h1 class="font-medium text-white text-lg line-clamp-1">{$currentEp?.number}. {$currentEp?.title ?? anime?.title?.english ?? anime?.title?.romaji }</h1>
 			<div class="anime-title flex gap-8 items-center">
-				<h1 class="text-sm">{anime?.title?.english ?? anime?.title?.romaji}</h1>
+				<h1 class="text-sm">{anime?.title?.english ?? anime?.title?.romaji }</h1>
 			</div>
 		</div>
 
