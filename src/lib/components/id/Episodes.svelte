@@ -111,7 +111,7 @@
 					{/each}
 				</TabList>
 
-				<div class="tooltip" data-tip="Switch audio">
+				<div class="tooltip tooltip-bottom" data-tip="Switch audio">
 					<input
 						type="checkbox"
 						class="toggle"
