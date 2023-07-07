@@ -85,9 +85,15 @@
 	}
 
 	const getDefaultSource = (sources) => {
-		const defaultSource = sources.find(
-			(source) => source.quality === 'auto' || source.quality === 'default'
-		);
+		let defaultSource;
+		try {
+			defaultSource = sources.find(
+				(source) => source.quality === 'auto' || source.quality === 'default'
+			);
+		} catch (error) {
+			// throw new Error('no sources found');
+			alert('No sources found. Change provider')
+		}
 		return defaultSource.url || sources[0].url;
 	};
 
@@ -216,7 +222,7 @@
 					top: '20px',
 					backgroundColor: 'white',
 					padding: '3px',
-					color:'black'
+					color: 'black'
 				},
 				click() {
 					art.seek = endingTime;
