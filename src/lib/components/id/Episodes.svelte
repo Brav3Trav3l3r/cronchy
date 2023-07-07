@@ -30,11 +30,11 @@
 
 	const noEpsAlert = () => {
 		if (anime?.episodes.length === 0 || animephaeAnime?.episodes.length === 0) {
-			alert('No episodes available. Try switching audio');
+			console.log('No episodes available. Try switching audio');
 		}
 	};
 
-	$: noEpsAlert();
+	noEpsAlert();
 
 	import {
 		currentEp,
